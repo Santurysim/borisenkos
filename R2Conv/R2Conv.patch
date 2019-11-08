@@ -1,0 +1,68 @@
+п╒п╬п╩я▄п╨п╬ п╡ .: conv
+п╒п╬п╩я▄п╨п╬ п╡ .: convmain.o
+diff -u ../../R2Conv/PointDeq.h ./PointDeq.h
+--- ../../R2Conv/PointDeq.h	2015-01-26 15:33:07.000000000 +0300
++++ ./PointDeq.h	2018-10-12 15:33:07.947505496 +0300
+@@ -219,23 +219,26 @@
+ 
+         const_iterator(const R2PointDeq* d, int firstElem, int firstPos):
+             iterator(
+-                (R2PointDeq*) d,
++                //(R2PointDeq*) d,
++                const_cast<R2PointDeq*>(d),
+                 firstElem,
+                 firstPos
+             )
+         {}
+ 
+         const_iterator(const iterator& i):
+-            iterator(i)
++            iterator(const_cast<R2PointDeq::iterator&>(i))
+         {}
+ 
+         const R2Point& operator*() const throw (DeqException) {
+-            return ((iterator*) this)->operator*();
++            //return ((iterator*) this)->operator*();
++            return (const_cast<R2PointDeq::const_iterator*>( this))->operator*();
+         }
+ 
+         const R2Point* operator->() const throw (DeqException) {
+             return &(
+-                ((iterator*) this)->operator*()
++                //((iterator*) this)->operator*()
++                (const_cast<R2PointDeq::const_iterator*>( this))->operator*()
+             );
+         }
+     };
+diff -u ../../R2Conv/R2Conv.h ./R2Conv.h
+--- ../../R2Conv/R2Conv.h	2016-01-21 11:28:53.000000000 +0300
++++ ./R2Conv.h	2018-10-12 15:47:27.264550685 +0300
+@@ -228,7 +228,8 @@
+         {}
+ 
+         const_iterator(const R2Convex* c, int pos):
+-            iterator((R2Convex*) c, pos)
++            //iterator((R2Convex*) c, pos)
++            iterator(const_cast<R2Convex*>( c), pos)
+         {}
+ 
+         const_iterator(const iterator& i):
+@@ -236,12 +237,14 @@
+         {}
+ 
+         const R2Point& operator*() const throw (R2ConvexException) {
+-            return ((iterator*) this)->operator*();
++            //return ((iterator*) this)->operator*();
++            return (reinterpret_cast<R2Convex::iterator*>(const_cast<R2Convex::const_iterator*>( this))->operator*());
+         }
+ 
+         const R2Point* operator->() const throw (R2ConvexException) {
+             return &(
+-                ((iterator*) this)->operator*()
++                //((iterator*) this)->operator*()
++                (const_cast<R2Convex::const_iterator*> (this))->operator*()
+             );
+         }
+     };
+п╒п╬п╩я▄п╨п╬ п╡ .: R2Conv.o
+п╒п╬п╩я▄п╨п╬ п╡ .: R2Conv.patch
