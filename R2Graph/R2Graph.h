@@ -291,23 +291,6 @@ public:
     static double distance(const R2Point& a, const R2Point& b) {
         return a.distance(b);
     }
-
-    /**
-     * \brief Distance from a to segment bc
-     * \warning This function calculates distance a to segment b,c,
-     * not line (b,c)
-     */
-    static double segmentDistance(const R2Point& a, const R2Point& b,
-		    const R2Point& c){
-	double angB = fabs(angle(b, a, c));
-	double angC = fabs(angle(c, a, b));
-	if(angB > M_PI/2)
-		return distance(a, b);
-	else if(angC > M_PI/2)
-		return distance(a, c);
-	else
-		return area(a, b, c)/distance(b, c); 
-    }
 };
 
 

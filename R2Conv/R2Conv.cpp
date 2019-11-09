@@ -57,33 +57,6 @@ bool R2Convex::forEach(bool (*action)(R2Point&)) {
     }
 }
 
-double R2Convex::distance(const R2Point &t){
-	if(m_NumAng == 0)
-                return -1;
-        else if(m_NumAng == 1)
-                return m_A.distance(t);
-        else if(m_NumAng == 2){
-                return R2Point::area(m_A, m_B, t)/R2Point::distance(m_A, m_B);
-        }else{          //More than 2 vertices;
-                auto iter = begin();
-                auto prev = *iter;
-                double ans = R2Point::distance(prev, t);
-		double current_dist;
-                bool is_outer = false;
-                iter++;
-                for(; iter != end(); iter++){
-                        is_outer = is_outer || (R2Point::angle(prev, *iter, t) >= R2GRAPH_EPSILON);
-                        current_dist = R2Point::segmentDistance(t, prev, *iter);
-                        ans = (ans > current_dist)? current_dist : ans;
-                        prev = *iter;
-                }
-		is_outer = is_outer || (R2Point::angle(prev, *begin(), t) >= R2GRAPH_EPSILON);
-                current_dist = R2Point::segmentDistance(t, prev, *begin());
-                ans = (ans > current_dist)? current_dist : ans;
-                return is_outer? ans : 0;
-        }
-}
-
 // End of implementation of the class R2Convex
 //======================================================
 

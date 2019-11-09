@@ -6,7 +6,7 @@
 //      R2Point, R2Vector
 
 #ifndef CONV_H
-#define CONV_H
+#   define CONV_H
 
 #include <math.h>
 #include "R2Graph/R2Graph.h"
@@ -147,8 +147,6 @@ public:
 
     void addPoint(const R2Point& t);
 
-    double distance(const R2Point& t);
-
     int size() const {
         if (m_NumAng < 3)
             return m_NumAng;
@@ -191,11 +189,11 @@ public:
 
         iterator operator++(int) { // Postfix increment operator
             iterator tmp = *this;
-            operator++(); // Ð¡all the prefix operator
+            operator++(); // óall the prefix operator
             return tmp;
         }
 
-        R2Point& operator*() {
+        R2Point& operator*() throw (R2ConvexException) {
             if (conv == 0)
                 throw R2ConvexException("Zero pointer dereference");
             if (conv->m_NumAng < 3) {
@@ -230,23 +228,20 @@ public:
         {}
 
         const_iterator(const R2Convex* c, int pos):
-            //iterator((R2Convex*) c, pos)
-            iterator(const_cast<R2Convex*>( c), pos)
+            iterator((R2Convex*) c, pos)
         {}
 
         const_iterator(const iterator& i):
             iterator(i)
         {}
 
-        const R2Point& operator*() const {
-            //return ((iterator*) this)->operator*();
-            return (reinterpret_cast<R2Convex::iterator*>(const_cast<R2Convex::const_iterator*>( this))->operator*());
+        const R2Point& operator*() const throw (R2ConvexException) {
+            return ((iterator*) this)->operator*();
         }
 
-        const R2Point* operator->() const {
+        const R2Point* operator->() const throw (R2ConvexException) {
             return &(
-                //((iterator*) this)->operator*()
-                (const_cast<R2Convex::const_iterator*> (this))->operator*()
+                ((iterator*) this)->operator*()
             );
         }
     };

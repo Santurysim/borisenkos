@@ -7,7 +7,7 @@
 
 class MyWindow: public GWindow {
     R2Convex    conv;
-    double dist;
+
     virtual void onExpose(XEvent& event);
     virtual void onKeyPress(XEvent& event);
     virtual void onButtonPress(XEvent& event);
@@ -61,10 +61,6 @@ void MyWindow::onExpose(XEvent& /* event */) { // Draw a window
 
         sprintf(str, "Perimeter = %.3f", perimeter);
         drawString(p, str, strlen(str));
-	p.y += 20;
-
-        sprintf(str, "Dist = %.3f", dist);
-        drawString(p, str);
     } else {
         setForeground("brown");
         I2Point p(10, 20);
@@ -109,7 +105,8 @@ void MyWindow::onButtonPress(XEvent& event) {
         // Initialize the convex hull
         conv.initialize();
     } else if (button == Button3) {
-	    dist = conv.distance(t);
+        // Right mouse button
+        // ... to do...
     }
 
     redraw();
@@ -128,7 +125,7 @@ int main() {
     MyWindow w;
     w.createWindow(
         I2Rectangle(                    // Window frame rectangle:
-            I2Point(100, 100),            //     left-top corner
+            I2Point(10, 10),            //     left-top corner
             GWindow::screenMaxX()/2,    //     width
             GWindow::screenMaxY()/2     //     height
         ),
