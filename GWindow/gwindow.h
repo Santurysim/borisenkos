@@ -1,7 +1,7 @@
-//
-// File "gwindow.h"
-// Simple graphic window, based on Xlib primitives
-//
+///	
+/// File "gwindow.h"
+/// Simple graphic window, based on Xlib primitives
+///
 
 #ifndef _GWINDOW_H
 #define _GWINDOW_H
@@ -20,6 +20,10 @@ extern "C" {
 
 //===============================
 
+///
+/// class ListHeader. Implements base for L2-List node
+/// and thus the data structure.
+///
 class ListHeader {
 public:
     ListHeader*     next;
@@ -45,19 +49,24 @@ public:
     }
 
     ~ListHeader() {}
-
+	///
+	/// Assign node h to this node.
     ListHeader& operator=(const ListHeader& h) {
         next = h.next;
         prev = h.prev;
         return *this;
     }
 
+	/// Append node to list
     void link(ListHeader& h) {
         next = &h;
         h.prev = this;
     }
 };
 
+///
+/// Wrapper class for X Fonts.
+///
 class FontDescriptor: public ListHeader {
 public:
     Font font_id;
@@ -73,6 +82,10 @@ public:
 
 const int DEFAULT_BORDER_WIDTH = 2;
 
+///
+/// GWindow main class.
+/// Impelents basic GUI routines, based on Xlib interfaces
+///
 class GWindow: public ListHeader {
 public:
     // Xlib objects:
@@ -86,15 +99,15 @@ public:
     Pixmap   m_Pixmap;
     GC       m_GC;
 
-    // Coordinates in window
-    I2Point     m_WindowPosition;   // Window position in screen coord
-    I2Rectangle m_IWinRect; // Window rectangle in (local) pixel coordinates
-    R2Rectangle m_RWinRect; // Window rectangle in inner (real) coordinates
+    /// Coordinates in window
+    I2Point     m_WindowPosition;   ///< Window position in screen coord
+    I2Rectangle m_IWinRect; 		///< Window rectangle in (local) pixel coordinates
+    R2Rectangle m_RWinRect; 		///< Window rectangle in inner (real) coordinates
 
-    I2Point m_ICurPos; // Current position, integer
-    R2Point m_RCurPos; //                   real
+    I2Point m_ICurPos; ///< Current position, integer
+    R2Point m_RCurPos; ///< Current psition, real
 
-    double m_xcoeff;  // Optimization: Coeff. for real->integer conversion
+    double m_xcoeff;  ///< Optimization: Coeff. for real->integer conversion
     double m_ycoeff;
 
     char   m_WindowTitle[128];
@@ -125,9 +138,21 @@ protected:
     bool                m_BeginExposeSeries;
 
 public:
-
+	
+	/// Basic GWindow constructor
     GWindow();
+
+	/// 
+	/// \brief GWindow with specified place and size on screen and title
+	/// \param frameRect Rectangle where window will be placed
+	/// \param title Window title
+	///
     GWindow(const I2Rectangle& frameRect, const char *title = 0);
+
+	/// \brief GWindow with screen place, chosen real coordinate system and title
+	/// \param frameRect Specifies where screen will be placed and what size it will have
+	/// \param coordRect Specifies real coordinates in window
+	///
     GWindow(
         const I2Rectangle& frameRect, 
         const R2Rectangle& coordRect,
@@ -135,11 +160,20 @@ public:
     );
     virtual ~GWindow();
 
-    // The "createWindow" method uses the m_IWinRect member to
-    // define the position and size of the window, and the
-    // m_WindowTitle member to set the window title.
-    // All parameters have their default values, so the method can
-    // be called without any parameters: createWindow()
+	///
+	/// \brief create X window
+    /// The method uses the m_IWinRect member to
+    /// define the position and size of the window, and the
+    /// m_WindowTitle member to set the window title.
+    /// All parameters have their default values, so the method can
+    /// be called without any parameters: createWindow()
+	/// \param parentWindow parent window
+	/// \param borderWidth width of the border
+	/// \param wndClass X Class of the window
+	/// \param visual ???
+	/// \param attributesValueMask Specifies X window attribures
+	/// \param attributes X attributes too
+	///
     void createWindow(
         GWindow* parentWindow = 0,              // parent window
         int borderWidth = DEFAULT_BORDER_WIDTH, // border width
@@ -148,12 +182,28 @@ public:
         unsigned long attributesValueMask = 0,  // which attributes are defined
         XSetWindowAttributes* attributes = 0    // attributes structure
     );
+
+	///
+	/// \brief create X window
+	/// \param frameRect specifies position and size of the window
+	/// \param title title of window
+	/// \param parentWindow Parent window
+	/// \param borderWidth width of window's border
+	///
     void createWindow(
         const I2Rectangle& frameRect, 
         const char *title = 0,
         GWindow* parentWindow = 0,
         int borderWidth = DEFAULT_BORDER_WIDTH
     );
+	
+	///
+	/// \brief create X window
+	/// \param frameRect position and size of the window
+	/// \param coordRect specifies real coordinates in window
+	/// \param title title of window
+	/// \param parentWindow Parent window
+	///
     void createWindow(
         const I2Rectangle& frameRect, 
         const R2Rectangle& coordRect,
@@ -162,10 +212,16 @@ public:
         int borderWidth = DEFAULT_BORDER_WIDTH
     );
 
+	/// \brief Connect to X Server. Always use this method before using GWindow.
+	/// \return false if attempt was unsuccessful.
     static bool initX();
+	/// Disconnect from X Server. Always use this method when your program finishes
     static void closeX();
+	/// Returns screen width (in pixels?)
     static int  screenMaxX();
+	/// Returns screen height (in pixels?)
     static int  screenMaxY();
+	/// Destroy all X Fonts;
     static void releaseFonts();
 
 private:
@@ -178,9 +234,16 @@ private:
     );
 
 public:
+	/// draw frame
     void drawFrame();
+
+	/// Set real coordinate system in window by coordinate's constraints
     void setCoordinates(double xmin, double ymin, double xmax, double ymax);
+
+	/// Set real coordinate system in window by R2Rectangle
     void setCoordinates(const R2Rectangle& coordRect);
+
+	/// Set real coordinate system in window by two points
     void setCoordinates(const R2Point& leftBottom, const R2Point& rightTop);
 
     double getXMin() const { return m_RWinRect.getXMin(); }
@@ -188,6 +251,7 @@ public:
     double getYMin() const { return m_RWinRect.getYMin(); }
     double getYMax() const { return m_RWinRect.getYMax(); }
 
+	/// draw coordinate axes
     void drawAxes(
         const char *axesColorName = 0,
         bool drawGrid = false,
@@ -195,14 +259,25 @@ public:
         bool offscreen = false
     );
 
+	/// Return window rectangle with integer sizes
     I2Rectangle getWindowRect() const { return m_IWinRect; }
+
+	/// Return window rectangle with real coordinate
     R2Rectangle getCoordRect() const  { return m_RWinRect; }
 
+	/// Move brush pointer to specified point in integer coordinates
     void moveTo(const I2Point& p);
+	
+	/// Move brush pointer to specified point in real coordinates
     void moveTo(const R2Point& p);
+
+	/// Move brush pointer to specified point in integer coordinates
     void moveTo(int x, int y);
+
+	/// Move brush pointer to specified point in real coordinates
     void moveTo(double x, double y);
 
+	/// ???
     void moveRel(const I2Vector& p);
     void moveRel(const R2Vector& p);
     void moveRel(int x, int y);
@@ -235,11 +310,13 @@ public:
     void drawString(const I2Point& p, const char *str, int len = (-1), bool offscreen = false);
     void drawString(const R2Point& p, const char *str, int len = (-1), bool offscreen = false);
     void drawString(double x, double y, const char *str, int len = (-1), bool offscreen = false);
-
-    // The following methods should be called before "createWindow"
+	
+	/// Set background color name
+    /// \warning The method should be called before "createWindow"
     void setBgColorName(const char* colorName);
     void setFgColorName(const char* colorName);
 
+	/// Set line properties for lines
     void setLineAttributes(
         unsigned int line_width, int line_style, 
         int cap_style, int join_style
@@ -247,16 +324,21 @@ public:
 
     void setLineWidth(unsigned int line_width);
 
+	/// Make X color
     unsigned long allocateColor(const char *colorName);
 
+	/// Set background color
     void setBackground(unsigned long bg);
     void setBackground(const char *colorName);
+
+	/// Set foreground color
     void setForeground(unsigned long fg);
     void setForeground(const char *colorName);
 
     unsigned long getBackground() const { return m_bgPixel; }
     unsigned long getForeground() const { return m_fgPixel; }
 
+	// filling drawing methods
     void fillRectangle(const I2Rectangle&, bool offscreen = false);
     void fillRectangle(const R2Rectangle&, bool offscreen = false);
 
@@ -266,17 +348,34 @@ public:
     void fillEllipse(const I2Rectangle&, bool offscreen = false);
     void fillEllipse(const R2Rectangle&, bool offscreen = false);
 
+	/// Force X to yield Expose event with all window as redraw area. 
+	/// onExpose() method will be called.
     void redraw();
+
+	/// Force X to yield Expose event with specified
+	/// real rectangle as redraw area.
+	/// onExpose() method will be called
     void redrawRectangle(const R2Rectangle&);
+
+	/// Force X to yield Expose event with specified
+	/// integer rectangle as redraw area.
+	/// onExpose() method will be called
     void redrawRectangle(const I2Rectangle&);
 
+	/// Change window title
     void setWindowTitle(const char* title);
 
+	/// Get integer coordinates of point from its real coordinates
     I2Point map(const R2Point& p) const;
     I2Point map(double x, double y) const;
+
+	/// Convert integer x-coordinate to real
     int mapX(double x) const;
+
+	/// Convert interger y-coordinate to real
     int mapY(double y) const;
 
+	/// Get real coordinates of point from its integer coordinates
     R2Point invMap(const I2Point& p) const;
 
     void recalculateMap();
@@ -297,10 +396,19 @@ public:
     void swapBuffers();
 
     // Callbacks:
-    virtual void onExpose(XEvent& event);
+	/// Called when some part of window needs to be redrawed
+	virtual void onExpose(XEvent& event);
+
+	/// Called when window has been resized
     virtual void onResize(XEvent& event); // event.xconfigure.width, height
+
+	/// Called when keyboard button was pressed
     virtual void onKeyPress(XEvent& event);
+
+	/// Called when mouse button was pressed (but not released)
     virtual void onButtonPress(XEvent& event);
+
+	/// Called when mouse button was released
     virtual void onButtonRelease(XEvent& event);
     virtual void onMotionNotify(XEvent& event);
     virtual void onCreateNotify(XEvent& event);
